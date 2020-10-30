@@ -2,6 +2,7 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -21,21 +22,11 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
-
+        self.capacity = capacity
+        self.hash_data = [None] * capacity
 
     def get_num_slots(self):
-        """
-        Return the length of the list you're using to hold the hash
-        table data. (Not the number of items stored in the hash table,
-        but the number of slots in the main list.)
-
-        One of the tests relies on this.
-
-        Implement this.
-        """
-        # Your code here
-
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -44,67 +35,69 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
-
-    def fnv1(self, key):
-        """
-        FNV-1 Hash, 64-bit
-
-        Implement this, and/or DJB2.
-        """
-
-        # Your code here
-
+        pass
 
     def djb2(self, key):
-        """
-        DJB2 hash, 32-bit
 
-        Implement this, and/or FNV-1.
-        """
-        # Your code here
+        hash = 5381
 
+        for s in key:
+            hash = ((( hash << 5) + hash) + ord(s))
+        return hash
+
+        # hash = 0
+
+        # for s in key:
+        #     hash = ((hash << 16) + (hash << 6) + ord(s) - hash)
+        # return hash
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
+        # return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
     def put(self, key, value):
-        """
-        Store the value with the given key.
+        index = self.hash_index(key)
+        new_node = HashTableEntry(key, value)
+        current = self.hash_data[index]
+        prev = None
 
-        Hash collisions should be handled with Linked List Chaining.
-
-        Implement this.
-        """
-        # Your code here
-
+        if current:
+            while current is not None:
+                if current.key == key:
+                    current.value = value
+                prev = current
+                current = current.next
+            prev.next = new_node
+        else:
+            self.hash_data[index] = new_node
 
     def delete(self, key):
-        """
-        Remove the value stored with the given key.
-
-        Print a warning if the key is not found.
-
-        Implement this.
-        """
-        # Your code here
-
+        index = self.hash_index(key)
+        current = self.hash_data[index]
+        prev = None
+        
+        while current is not None:
+            if current.key == key:
+                if prev:
+                    prev.next = current.next
+                else:
+                    self.hash_data[index] = current.next
+            prev = current
+            current = current.next
 
     def get(self, key):
-        """
-        Retrieve the value stored with the given key.
-
-        Returns None if the key is not found.
-
-        Implement this.
-        """
-        # Your code here
-
+        index = self.hash_index(key)
+        current = self.hash_data[index]
+        
+        while current is not None:
+            if current.key == key:
+                return current.value
+            current = current.next
+        return None
 
     def resize(self, new_capacity):
         """
@@ -114,7 +107,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        pass
 
 
 if __name__ == "__main__":
